@@ -1,0 +1,5 @@
+mutagen==1.42.0
+requests==2.22.0
+beautifulsoup4==4.9.3
+PyQt5==5.15.1
+lxml==4.6.1
