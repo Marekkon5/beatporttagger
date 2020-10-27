@@ -1,0 +1,145 @@
+<html>
+    <head>
+        <link rel='icon' type='image/png' href='/favicon.png'>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <meta charset="ISO-8859-1"> 
+        <link href='style.css' rel='stylesheet'>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald:300&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:700&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400&display=swap">
+    </head>
+    <body>
+        <h1>Beatport Tagger</h1>
+        <div class='content'>
+            <h2>INPUT</h2>
+            <div>
+                <input type='text' id='path' class='path-input'>
+                <button onclick='browse()' style="margin-left: 11px;">BROWSE</button>
+            </div>
+            <h2>SETTINGS</h2>
+            <div class="checkbox-container circular-container">
+                <label class='checkbox-label'>&nbsp; &nbsp;&nbsp;
+                    <input type='checkbox' id='replaceArt'>
+                    <label for='replaceArt' class='checkbox-label'>Replace Album Art</label>
+                    <span class='checkbox-custom circular'></span>
+                </label>
+            </div>
+            <div class='text-input'>
+                <label for='artResolution'>Album Art Resolution:</label>
+                <input type='number' id='artResolution' value='1000' min='100' max='3000' step='100'>
+            </div>
+            <div class='text-input'>
+                <label for='artistSeparator'>Artist Separator:</label>
+                <input type='text' id='artistSeparator' value='; '>
+            </div>
+            <div class='text-input'>
+                <label for='fuzziness'>Fuzziness (%):</label>
+                <input type='number' id='fuzziness' value='90' min='10' max='100' step='1'>
+            </div>
+            <h2>TAGS</h2>
+            <div class="checkbox-container circular-container">
+                <label class='checkbox-label'>&nbsp; &nbsp;&nbsp;
+                    <input type='checkbox' id='updateTitle'>
+                    <label for='updateTitle' class='checkbox-label'>Title</label>
+                    <span class='checkbox-custom circular'></span>
+                </label>
+            </div>
+            <div class="checkbox-container circular-container">
+                <label class='checkbox-label'>&nbsp; &nbsp;&nbsp;
+                    <input type='checkbox' id='updateArtists'>
+                    <label for='updateArtists' class='checkbox-label'>Artists</label>
+                    <span class='checkbox-custom circular'></span>
+                </label>
+            </div>
+            <div class="checkbox-container circular-container">
+                <label class='checkbox-label'>&nbsp; &nbsp;&nbsp;
+                    <input type='checkbox' id='updateAlbum'>
+                    <label for='updateAlbum' class='checkbox-label'>Album</label>
+                    <span class='checkbox-custom circular'></span>
+                </label>
+            </div>
+            <div class="checkbox-container circular-container">
+                <label class='checkbox-label'>&nbsp; &nbsp;&nbsp;
+                    <input type='checkbox' id='updateLabel'>
+                    <label for='updateLabel' class='checkbox-label'>Label</label>
+                    <span class='checkbox-custom circular'></span>
+                </label>
+            </div>
+            <div class="checkbox-container circular-container">
+                <label class='checkbox-label'>&nbsp; &nbsp;&nbsp;
+                    <input type='checkbox' id='updateBPM'>
+                    <label for='updateBPM' class='checkbox-label'>BPM</label>
+                    <span class='checkbox-custom circular'></span>
+                </label>
+            </div>
+            <div class="checkbox-container circular-container">
+                <label class='checkbox-label'>&nbsp; &nbsp;&nbsp;
+                    <input type='checkbox' id='updateGenre' checked>
+                    <label for='updateGenre' class='checkbox-label'>Genre</label>
+                    <span class='checkbox-custom circular'></span>
+                </label>
+            </div>
+            <div class="checkbox-container circular-container">
+                <label class='checkbox-label'>&nbsp; &nbsp;&nbsp;
+                    <input type='checkbox' id='updateDate'>
+                    <label for='updateDate' class='checkbox-label'>Date / Year</label>
+                    <span class='checkbox-custom circular'></span>
+                </label>
+            </div>
+            <div class="checkbox-container circular-container">
+                <label class='checkbox-label'>&nbsp; &nbsp;&nbsp;
+                    <input type='checkbox' id='updateKey'>
+                    <label for='updateKey' class='checkbox-label'>Key</label>
+                    <span class='checkbox-custom circular'></span>
+                </label>
+            </div>
+        </div>
+        <button class='start-button' onclick='start()' style="line-height: 25px;">START</button>
+        <br>
+        <progress id='progress' class='progress' value='0' max='100'></progress>
+        <br>
+        <br>
+        <div>
+            <span style="color: #8C8C8C; font-family: 'Open Sans', sans-serif; font-weight: 400;">PROGRESS: <span id="percent">0</span>%&nbsp; |&nbsp; SUCCESSFUL: <span id="success">0</span>&nbsp; |&nbsp;&nbsp; FAILED: <span id="failed">0</span></span>
+        </div>
+    </body>
+    <script>
+
+function start() {
+    pywebview.api.start();
+}
+
+function browse() {
+    pywebview.api.browseFolder().then((res) => {
+        document.getElementById('path').value = res
+    });
+}
+
+function updateProgress(v, s, f) {
+    document.getElementById('progress').value = v;
+    document.getElementById('percent').innerText = v;
+    document.getElementById('success').innerText = s;
+    document.getElementById('failed').innerText = f;
+}
+
+function getConfig() {
+    config = {
+        tags: [
+            ...(document.getElementById('updateTitle').checked?['title']:[]),
+            ...(document.getElementById('updateArtists').checked?['artist']:[]),
+            ...(document.getElementById('updateAlbum').checked?['album']:[]),
+            ...(document.getElementById('updateLabel').checked?['label']:[]),
+            ...(document.getElementById('updateBPM').checked?['bpm']:[]),
+            ...(document.getElementById('updateGenre').checked?['genre']:[]),
+            ...(document.getElementById('updateDate').checked?['date']:[]),
+            ...(document.getElementById('updateKey').checked?['key']:[])
+        ],
+        artResolution: document.getElementById('artResolution').value,
+        replaceArt: document.getElementById('replaceArt').checked,
+        artistSeparator: document.getElementById('artistSeparator').value,
+        fuzziness: parseInt(document.getElementById('fuzziness').value, 10)
+    };
+    return config;
+}
+
+</script>

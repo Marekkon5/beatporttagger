@@ -1,1 +1,0 @@
-pyinstaller --onedir --icon=icon.ico --add-data "icon.png;." beatporttagger.py

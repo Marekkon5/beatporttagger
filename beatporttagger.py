@@ -1,93 +1,60 @@
-import sys
+import webview
 import os
-import math
-import threading
-
-from PyQt5 import QtWidgets, QtGui, uic
-
-import mainwindow
 import tagger
+import math
 
-class MainWindow(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
-    def __init__(self, *args, obj=None, **kwargs):
-        super(MainWindow, self).__init__(*args, **kwargs)
-        self.setupUi(self)
+class JSAPI:
+    def __init__(self):
+        self.tagger = None
 
-        #Icon
-        self.setWindowIcon(QtGui.QIcon(os.path.join(os.environ.get('_MEIPASS', os.path.abspath(".")), 'icon.png')))
-            
-        #Browser button
-        self.browse_button.clicked.connect(self.browse_folder)
+    def browseFolder(self):
+        return window.create_file_dialog(dialog_type=webview.FOLDER_DIALOG, allow_multiple=False)
 
-        self.start_button.clicked.connect(self.start_click)
-
-    def browse_folder(self):
-        path = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Folder")
-        if path != None:
-            self.path_entry.setText(path)
-
-    def start_click(self):
-        #Check path
-        path = self.path_entry.text()
-        if not os.path.exists(path) or path == None or path == '':
-            #Error dialog
-            dialog = QtWidgets.QErrorMessage()
-            dialog.showMessage('Invalid path!')
-            dialog.setWindowTitle('Error')
-            dialog.exec_()
+    def start(self):
+        #Validate path
+        path = window.get_elements('#path')[0]['value']
+        if not os.path.exists(path):
+            window.evaluate_js('alert("Invalid path!")')
             return
 
-        #Generate settings
-        config = tagger.TagUpdaterConfig(update_tags=[
-            tagger.UpdatableTags.title if self.update_title.isChecked() else None,
-            tagger.UpdatableTags.artist if self.update_artists.isChecked() else None,
-            tagger.UpdatableTags.album if self.update_album.isChecked() else None,
-            tagger.UpdatableTags.label if self.update_label.isChecked() else None,
-            tagger.UpdatableTags.bpm if self.update_bpm.isChecked() else None,
-            tagger.UpdatableTags.genre if self.update_genre.isChecked() else None,
-            tagger.UpdatableTags.date if self.update_date.isChecked() else None,
-        ],
-            replace_art=self.replace_art.isChecked(),
-            art_resolution=self.art_resolution.value(),
-            artist_separator=self.artist_separator.text()
+        #Generate config
+        jconfig = window.evaluate_js('getConfig()')
+        config = tagger.TagUpdaterConfig(
+            update_tags = [tagger.UpdatableTags[t] for t in jconfig['tags']],
+            replace_art=jconfig['replaceArt'],
+            art_resolution=jconfig['artResolution'],
+            artist_separator=jconfig['artistSeparator'],
+            fuzziness=jconfig['fuzziness']
         )
 
-        #Disable button
-        self.start_button.setEnabled(False)
+        #Prepare tagger
+        self.tagger = tagger.TagUpdater(config, success_callback=self.success, fail_callback=self.fail)
+        self.tagger.tag_dir(path)
+        window.evaluate_js('alert("Done!")')
+        return
 
-        #Start thread
-        self.path = path
-        self.tagger = tagger.TagUpdater(config, callback=self.progress_callback)
-        self.taggerThread = threading.Thread(target=self.tagger_thread)
-        self.taggerThread.start()
+    def success(self, path):
+        self.update()
 
-    def tagger_thread(self):
-        print('Starting...')
-        self.tagger.tag_dir(self.path)
-        self.start_button.setEnabled(True)
+    def fail(self, path):
+        self.update()
 
-        #Show done dialog
-        # Causes errors/crashes because of threading
-        # QtWidgets.QMessageBox.information(self, 'Done', 'Finished!')
-
-        print('Done!')
-
-    def progress_callback(self):
+    def update(self):
         if self.tagger != None and self.tagger.total > 0:
             #Percentage
             p = (len(self.tagger.success) + len(self.tagger.fail)) / self.tagger.total
-            self.progress_bar.setValue(math.floor(p*100))
+            percent = math.floor(p*100)
+            window.evaluate_js(f'updateProgress({percent}, {len(self.tagger.success)}, {len(self.tagger.fail)})')
 
-            #Success, fail
-            self.success_count.setText(str(len(self.tagger.success)))
-            self.fail_count.setText(str(len(self.tagger.fail)))
-
-
-def main():
-    app = QtWidgets.QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    app.exec()
+window = webview.create_window(
+    'Beatport Tagger', 
+    'html/index.html',
+    resizable=True,
+    width=420,
+    height=860,
+    min_size=(420, 420),
+    js_api=JSAPI()
+)
 
 if __name__ == '__main__':
-    main()
+    webview.start(debug=False)

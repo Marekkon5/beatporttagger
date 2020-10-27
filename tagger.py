@@ -2,27 +2,29 @@ import os
 import requests
 
 from enum import Enum
-from mutagen.id3 import ID3, TIT2, TPE1, TALB, TPUB, TBPM, TCON, TDAT, TYER, APIC
+from mutagen.id3 import ID3, TIT2, TPE1, TALB, TPUB, TBPM, TCON, TDAT, TYER, APIC, TKEY
 from mutagen.flac import FLAC, Picture
 
 import beatport
 
-UpdatableTags = Enum('UpdatableTags', 'title artist album label bpm genre date')
+UpdatableTags = Enum('UpdatableTags', 'title artist album label bpm genre date key')
 
 class TagUpdaterConfig:
 
-    def __init__(self, update_tags = [UpdatableTags.genre], replace_art = False, artist_separator = ';', art_resolution = 1200):
+    def __init__(self, update_tags = [UpdatableTags.genre], replace_art = False, artist_separator = ';', art_resolution = 1200, fuzziness = 80):
         self.update_tags = update_tags
         self.replace_art = replace_art
         self.artist_separator = artist_separator
         self.art_resolution = art_resolution
+        self.fuzziness = fuzziness
 
 class TagUpdater:
 
-    def __init__(self, config: TagUpdaterConfig, callback=None):
+    def __init__(self, config: TagUpdaterConfig, success_callback=None, fail_callback=None):
         self.config = config
         self.beatport = beatport.Beatport()
-        self._callback = callback
+        self._success_callback = success_callback
+        self._fail_callback = fail_callback
         self.success = []
         self.fail = []
         self.total = 0
@@ -30,13 +32,13 @@ class TagUpdater:
     #Mark file as succesfull
     def _ok(self, path: str):
         self.success.append(path)
-        if self._callback != None:
-            self._callback()
+        if self._success_callback != None:
+            self._success_callback(path)
 
     def _fail(self, path: str):
         self.fail.append(path)
-        if self._callback != None:
-            self._callback()
+        if self._fail_callback != None:
+            self._fail_callback(path)
 
     def tag_dir(self, path: str):
         #Reset
@@ -77,7 +79,7 @@ class TagUpdater:
             if title != None and artists != None:
                 print('Processing file: ' + file)
                 #Search
-                track = self.beatport.match_track(title, artists)
+                track = self.beatport.match_track(title, artists, fuzzywuzzy_ratio=self.config.fuzziness)
                 if track == None:
                     print('Track not found on Beatport! ' + file)
                     self._fail(file)
@@ -116,6 +118,9 @@ class TagUpdater:
             date = track.release_date.strftime('%d%m')
             f['TDAT'] = TDAT(text=date)
             f['TYER'] = TYER(text=str(track.release_date.year))
+        if UpdatableTags.key in self.config.update_tags:
+            f['TKEY'] = TKEY(text=track.id3key())
+        
 
         #Redownlaod cover
         if self.config.replace_art:
@@ -135,8 +140,9 @@ class TagUpdater:
             except Exception:
                 print('Error downloading cover for file: ' + path)
 
-
         f.save(v2_version=3)
+        #Remove V1 tags
+        f.delete(path, delete_v1=True, delete_v2=False)
 
     def update_flac(self, path: str, track: beatport.Track):
         f = FLAC(path)
@@ -156,12 +162,13 @@ class TagUpdater:
         if UpdatableTags.date in self.config.update_tags:
             f['DATE'] = track.release_date.strftime('%Y-%m-%d')
             #Year - part of date
+        if UpdatableTags.key in self.config.update_tags:
+            f['INITIALKEY'] = track.id3key()
 
         #Redownlaod cover
         if self.config.replace_art:
             try:
                 url = track.art(self.config.art_resolution)
-                print(url)
                 r = requests.get(url)
                 image = Picture()
                 image.type = 3

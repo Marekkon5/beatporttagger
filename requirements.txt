@@ -1,5 +1,7 @@
-mutagen==1.42.0
 requests==2.22.0
+fuzzywuzzy==0.17.0
+mutagen==1.42.0
+pywebview==3.3.3
 beautifulsoup4==4.9.3
 PyQt5==5.15.1
-lxml==4.6.1
+webview==0.1.5

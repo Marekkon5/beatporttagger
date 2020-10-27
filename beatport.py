@@ -3,6 +3,7 @@ import json
 import re
 import datetime
 
+from fuzzywuzzy import fuzz
 from bs4 import BeautifulSoup
 
 class Beatport:
@@ -24,7 +25,7 @@ class Beatport:
         return [Track(t) for t in data['tracks']]
 
     #Search and match track
-    def match_track(self, title: str, artists: list):
+    def match_track(self, title: str, artists: list, fuzzywuzzy_ratio = 80):
         query = ', '.join(artists) + f' {title}'
         tracks = self.search_tracks(query)
 
@@ -44,6 +45,11 @@ class Beatport:
                 if clean_artists == self._clean_artists(bp_artists):
                     return track
 
+            #No match - use fuzzywuzzy
+            if fuzz.token_sort_ratio(track.title, title) >= fuzzywuzzy_ratio:
+                bp_artists = ','.join([a.name for a in track.artists])
+                if fuzz.token_sort_ratio(','.join(artists), bp_artists) >= fuzzywuzzy_ratio:
+                    return track
 
     def _remove_special(self, input: str) -> str:
         specials = '.,()[] &_"' + "'"
@@ -88,6 +94,10 @@ class Track:
 
     def art(self, resolution: int):
         return self._art.replace('{x}', str(resolution)).replace('{y}', str(resolution)).replace('{w}', str(resolution)).replace('{h}', str(resolution))
+
+    #Convert Beatport key to ID3
+    def id3key(self):
+        return self.key.replace('\u266d', 'b').replace('\u266f', '#').replace('min', 'm').replace('maj', '').replace(' ', '')
 
 #Datatype for sub-types in track data
 class BPSmall:
