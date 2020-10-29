@@ -79,7 +79,14 @@ class TagUpdater:
             if title != None and artists != None:
                 print('Processing file: ' + file)
                 #Search
-                track = self.beatport.match_track(title, artists, fuzzywuzzy_ratio=self.config.fuzziness)
+                track = None
+                try:
+                    track = self.beatport.match_track(title, artists, fuzzywuzzy_ratio=self.config.fuzziness)
+                except Exception as e:
+                    print(f'Matching failed: {file}, {str(e)}')
+                    self._fail(file)
+                    continue
+
                 if track == None:
                     print('Track not found on Beatport! ' + file)
                     self._fail(file)

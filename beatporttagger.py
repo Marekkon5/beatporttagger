@@ -17,6 +17,9 @@ class JSAPI:
             window.evaluate_js('alert("Invalid path!")')
             return
 
+        #Disable button
+        window.evaluate_js('toggleButton()')
+
         #Generate config
         jconfig = window.evaluate_js('getConfig()')
         config = tagger.TagUpdaterConfig(
@@ -31,6 +34,10 @@ class JSAPI:
         self.tagger = tagger.TagUpdater(config, success_callback=self.success, fail_callback=self.fail)
         self.tagger.tag_dir(path)
         window.evaluate_js('alert("Done!")')
+
+        #Reenable button
+        window.evaluate_js('toggleButton()')
+        
         return
 
     def success(self, path):

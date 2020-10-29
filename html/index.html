@@ -94,7 +94,7 @@
                 </label>
             </div>
         </div>
-        <button class='start-button' onclick='start()' style="line-height: 25px;">START</button>
+        <button class='start-button' onclick='start()' style="line-height: 25px;" id='startButton'>START</button>
         <br>
         <progress id='progress' class='progress' value='0' max='100'></progress>
         <br>
@@ -107,6 +107,10 @@
 
 function start() {
     pywebview.api.start();
+}
+
+function toggleButton() {
+    document.getElementById('startButton').disabled = !document.getElementById('startButton').disabled;
 }
 
 function browse() {
