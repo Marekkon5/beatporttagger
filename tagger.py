@@ -92,12 +92,6 @@ class TagUpdater:
                 self._fail(file)
                 continue
 
-            #Missing metadata
-            if track.title == None or track.artists == None:
-                logging.error('Invalid track from Beatport! ' + file)
-                self._fail(file)
-                continue
-
             #Update files
             if file_type == 'mp3':
                 self.update_mp3(file, track)

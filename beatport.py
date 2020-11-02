@@ -22,7 +22,13 @@ class Beatport:
         data_str = script_data[script_data.find('window.Playables = ')+19:script_data.find('\n', script_data.find('window.Playables = '))][:-1]
         data = json.loads(data_str)
 
-        return [Track(t) for t in data['tracks']]
+        #Some tracks on beatport are invalid, filter them
+        out = []
+        for t in data['tracks']:
+            track = Track(t)
+            if (track.name and track.artists and track.duration):
+                out.append(track)
+        return out
 
     #Search and match track
     def match_track(self, title: str, artists: list, fuzzywuzzy_ratio = 80):
