@@ -7,6 +7,7 @@ body {
     color: #F5F5F5;
     font-size: 13;
     margin: 0px;
+    overflow: hidden;
 }
 
 h1 {

@@ -8,6 +8,8 @@ Install dependencies:
 ```
 pip install --user -r requirements.txt
 ```
+**Windows**: If you get errors installing dependencies, use Python 3.6 exactly.  
+
 Run:
 ```
 python beatporttagger.py
