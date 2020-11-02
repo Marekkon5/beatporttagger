@@ -1,5 +1,6 @@
 import os
 import requests
+import logging
 
 from enum import Enum
 from mutagen.id3 import ID3, TIT2, TPE1, TALB, TPUB, TBPM, TCON, TDAT, TYER, APIC, TKEY
@@ -57,52 +58,54 @@ class TagUpdater:
         for file in files:
             title, artists = None, None
             file_type = None
-            #MP3 Files
-            if file.lower().endswith('.mp3'):
-                try:
+            try:
+                #MP3 Files
+                if file.lower().endswith('.mp3'):
                     title, artists = self.info_mp3(file)
-                except Exception:
-                    print('Invalid file: ' + file)
-                    self._fail(file)
-                    continue
-                file_type = 'mp3'
-            #FLAC
-            if file.lower().endswith('.flac'):
-                try:
+                    file_type = 'mp3'
+                #FLAC
+                if file.lower().endswith('.flac'):
                     title, artists = self.info_flac(file)
-                except Exception:
-                    print('Invalid file: ' + file)
-                    self._fail(file)
-                    continue
-                file_type = 'flac'
-
-            if title != None and artists != None:
-                print('Processing file: ' + file)
-                #Search
-                track = None
-                try:
-                    track = self.beatport.match_track(title, artists, fuzzywuzzy_ratio=self.config.fuzziness)
-                except Exception as e:
-                    print(f'Matching failed: {file}, {str(e)}')
-                    self._fail(file)
-                    continue
-
-                if track == None:
-                    print('Track not found on Beatport! ' + file)
-                    self._fail(file)
-                    continue
-                
-                #Update files
-                if file_type == 'mp3':
-                    self.update_mp3(file, track)
-                if file_type == 'flac':
-                    self.update_flac(file, track)
-                
-                self._ok(file)
-            
-            else:
+                    file_type = 'flac'
+            except Exception:
+                logging.error('Invalid file: ' + file)
                 self._fail(file)
-                print('No metadata in file: ' + file)
+                continue
+
+            if title == None or artists == None:
+                self._fail(file)
+                logging.error('No metadata in file: ' + file)
+                continue
+
+            logging.info('Processing file: ' + file)
+            #Search
+            track = None
+            try:
+                track = self.beatport.match_track(title, artists, fuzzywuzzy_ratio=self.config.fuzziness)
+            except Exception as e:
+                logging.error(f'Matching failed: {file}, {str(e)}')
+                self._fail(file)
+                continue
+
+            if track == None:
+                logging.error('Track not found on Beatport! ' + file)
+                self._fail(file)
+                continue
+
+            #Missing metadata
+            if track.title == None or track.artists == None:
+                logging.error('Invalid track from Beatport! ' + file)
+                self._fail(file)
+                continue
+
+            #Update files
+            if file_type == 'mp3':
+                self.update_mp3(file, track)
+            if file_type == 'flac':
+                self.update_flac(file, track)
+            
+            self._ok(file)
+            
 
 
     def update_mp3(self, path: str, track: beatport.Track):
@@ -145,7 +148,7 @@ class TagUpdater:
                 f['APIC:cover.jpg'] = data
 
             except Exception:
-                print('Error downloading cover for file: ' + path)
+                logging.warning('Error downloading cover for file: ' + path)
 
         f.save(v2_version=3)
         #Remove V1 tags
@@ -185,7 +188,7 @@ class TagUpdater:
                 f.clear_pictures()
                 f.add_picture(image)
             except Exception:
-                print('Error downloading cover for file: ' + path)
+                logging.warning('Error downloading cover for file: ' + path)
 
         f.save()
 
@@ -196,7 +199,6 @@ class TagUpdater:
         artists = self._parse_artists(str(f['TPE1']))
         return title, artists
 
-    #Info returns title and artists aray
     def info_flac(self, path: str) -> (str, list):
         f = FLAC(path)
         title = str(f['title'][0])

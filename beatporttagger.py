@@ -56,10 +56,10 @@ class JSAPI:
 window = webview.create_window(
     'Beatport Tagger', 
     'html/index.html',
-    resizable=True,
-    width=420,
-    height=860,
-    min_size=(420, 420),
+    resizable=False,
+    width=435,
+    height=800,
+    min_size=(435, 800),
     js_api=JSAPI()
 )
 

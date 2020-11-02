@@ -6,13 +6,32 @@ body {
     background-color: #1A1A1A;
     color: #F5F5F5;
     font-size: 13;
+    margin: 0px;
 }
 
 h1 {
-    margin-top: 16px;
-    margin-bottom: 16px;
+    text-align: left;
+    margin-top: 0px;
+    margin-bottom: 7%;
     font-family: 'Oswald', sans-serif;
     font-weight: 300;
+    background-color: #000000;
+    padding-left: 72px;
+    padding-bottom: 15px;
+    padding-top: 15px;
+    background-image: url('favicon.png');
+    background-repeat: no-repeat;
+    background-size: 40px;
+    background-position: 27px;
+}
+
+h2 {
+    text-align: left;
+    margin-top: 0px;
+    margin-bottom: 10px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 300;
+    padding-top: 13px;
 }
 
 button {
@@ -32,12 +51,35 @@ button {
     text-transform: uppercase;
     text-align: center;
     transition: background .2s;
+    height: 28px;
 }
 
 button:hover {
     background: #82bc00;
     color: #f5f5f5;
     cursor: pointer;
+    box-shadow: 0 0 0 0 rgba(148,213,0,.9);
+}
+
+button:focus {
+    box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+    border-radius: .3rem;
+    background: #94d500;
+    color: #f5f5f5;
+}
+
+button:focus:active {
+    background-image: none;
+    outline: 5px;
+    box-shadow: none;
+    transform: translateY(2px);
+}
+
+button:disabled {
+    border: 1px solid #999999;
+    background-color: #cccccc;
+    color: #666666;
+    cursor: progress;
 }
 
 .content {
@@ -47,54 +89,53 @@ button:hover {
     font-size: 11;
     background-color: #2a2a2a;
     border-radius: 20px;
-    padding: 3% 5%;
+    padding-top: 10px;
     font-weight: 300;
+    margin: 7%;
+    padding-left: 5%;
+    height: 483px;
 }
 
 .path-input {
-    width: 256px;
+    width: 225px;
     height: 20px;
     background-color: #000000;
     border: 0px solid #efefef;
     font-family: 'Open Sans Condensed', sans-serif;
     color: #FF53A0;
-    border-radius: 0px;
-    font-weight: 400;
+    border-radius: 3px;
+    font-weight: 700;
     font-size: 14;
     text-indent: 1%;
     background-position: left center;
+    margin-bottom: 10px;
 }
 
 .text-input {
-    margin-top: 8px;
+    margin-top: 12px;
     font-family: 'Open Sans', sans-serif;
     font-weight: 400;
-    color: #F5F5F5;
+    color: #cccccc;
     text-transform: uppercase;
     font-size: 13;
-    text-indent: 5PX;
+    text-indent: 11PX;
+    margin-bottom: 6px;
 }
 
 .text-input input {
     width: 80px;
-    height: 16px;
+    height: 20px;
     background-color: #000000;
+    position: absolute;
+    margin-top: 0px;
     border: 0px solid #efefef;
-    border-radius: 2px;
+    border-radius: 3px;
     color: #FF53A0;
     font-family: 'Open Sans Condensed', sans-serif;
-    font-size: 13px;
-    position: absolute;
-    margin-top: 2px;
-    left: 275px;
+    font-size: 14px;
+    left: 270px;
     font-weight: 700;
     text-indent: 3%;
-}
-
-.text-input input::-webkit-outer-spin-button,
-.text-input input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
 }
 
 .text-input input[type=number] {
@@ -109,7 +150,6 @@ button:hover {
     font-family: 'Open Sans', sans-serif;
     font-weight: 400;
     color: #39C1DE;
-    text-indent: 5PX;
 }
 
 .checkbox-title {
@@ -201,8 +241,9 @@ button:hover {
     font-family: 'Open Sans Condensed', sans-serif;
     color: #39C1DE;
     font-weight: 400;
-    text-indent: 5px;
+    text-indent: 10px;
     font-size: 16;
+    width: 11em;
 }
 
 .checkbox-container:hover {
@@ -211,17 +252,47 @@ button:hover {
     cursor: pointer;
 }
 
+.checkbox-container-edit {
+    margin-top: 0px;
+    margin-bottom: 4px;
+    font-family: 'Open Sans Condensed', sans-serif;
+    color: #39C1DE;
+    font-weight: 400;
+    text-indent: 10;
+    font-size: 16;
+    padding-right: 18px;
+    width: 9em;
+    float: left;
+}
+
+.checkbox-container-edit:hover {
+    background: #373737;
+    color: #f5f5f5;
+    cursor: pointer;
+}
+
 .start-button {
-    margin-top: 16px;
-    margin-bottom: 16px;
-    width: 128px;
-    font-size: 24px;
+    margin-top: 0px;
+    margin-bottom: 14px;
+    width: 270px;
+    height: 36px;
+    font-size: 20px;
+    text-align: middle;
+    padding: .3em;
+}
+
+.start-button:focus:active {
+    background-image: none;
+    outline: 0;
+    box-shadow: none;
 }
 
 .progress {
-    width: 60%;
+    width: 100%;
     background-color: #111111;
     height: 5px;
+    margin-top: 15px;
+
     /* color: #00000; */
 }
 
@@ -236,11 +307,31 @@ button:hover {
 }
 
 .progress::-webkit-progress-value {
-    background-color: #FF53A0;
+    background-color: #39C1DE;
     border-radius: 2px;
 }
 
 .progress::-moz-progress-bar {
-    background-color: #FF53A0;
+    background-color: #39C1DE;
     border-radius: 2px;
 }
+
+.progression {
+    text-align: center;
+    margin-top: -18px;
+    margin-bottom: 0px;
+    font-family: 'Open Sans', sans-serif;
+    color: #8c8c8c;
+    font-weight: 400;
+    background-color: #000000;
+    padding-bottom: 18px;
+    padding-top: 21px;
+    height: 25px;
+}
+
+.bottom-bar {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+}
+
