@@ -94,7 +94,7 @@ button:disabled {
     font-weight: 300;
     margin: 7%;
     padding-left: 5%;
-    height: 483px;
+    height: 455px;
 }
 
 .path-input {
@@ -261,9 +261,10 @@ button:disabled {
     font-weight: 400;
     text-indent: 10;
     font-size: 16;
-    padding-right: 18px;
-    width: 9em;
+    padding-right: 0px;
+    width: 6.5em;
     float: left;
+    padding-bottom: 5px;
 }
 
 .checkbox-container-edit:hover {

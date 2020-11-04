@@ -57,9 +57,9 @@ window = webview.create_window(
     'Beatport Tagger', 
     'html/index.html',
     resizable=False,
-    width=420,
-    height=800,
-    min_size=(420, 800),
+    width=415,
+    height=760,
+    min_size=(415, 760),
     js_api=JSAPI()
 )
 
