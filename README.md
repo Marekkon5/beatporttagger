@@ -1,6 +1,6 @@
 # Beatport Tagger
 
-![alt text](https://github.com/Marekkon5/beatporttagger/raw/main/icon64.png "Logo Title Text 1")
+![Logo](https://github.com/Marekkon5/beatporttagger/raw/main/icon64.png "Logo")
 
 Simple Python app to update your audio tags & cover with data from Beatport using scrapping (no paid API).
 
