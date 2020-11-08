@@ -22,7 +22,7 @@
                     <input type="checkbox" id="replaceArt">
                     <label for="replaceArt" class="checkbox-label">Replace
                         Album Art
-</label>
+                    </label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
@@ -109,45 +109,55 @@
     </body>
     <script>
 
-function start() {
-    pywebview.api.start();
-}
-
-function toggleButton() {
-    document.getElementById('startButton').disabled = !document.getElementById('startButton').disabled;
-}
-
-function browse() {
-    pywebview.api.browseFolder().then((res) => {
-        document.getElementById('path').value = res
-    });
-}
-
-function updateProgress(v, s, f) {
-    document.getElementById('progress').value = v;
-    document.getElementById('percent').innerText = v;
-    document.getElementById('success').innerText = s;
-    document.getElementById('failed').innerText = f;
-}
-
-function getConfig() {
-    config = {
-        tags: [
-            ...(document.getElementById('updateTitle').checked?['title']:[]),
-            ...(document.getElementById('updateArtists').checked?['artist']:[]),
-            ...(document.getElementById('updateAlbum').checked?['album']:[]),
-            ...(document.getElementById('updateLabel').checked?['label']:[]),
-            ...(document.getElementById('updateBPM').checked?['bpm']:[]),
-            ...(document.getElementById('updateGenre').checked?['genre']:[]),
-            ...(document.getElementById('updateDate').checked?['date']:[]),
-            ...(document.getElementById('updateKey').checked?['key']:[])
-        ],
-        artResolution: document.getElementById('artResolution').value,
-        replaceArt: document.getElementById('replaceArt').checked,
-        artistSeparator: document.getElementById('artistSeparator').value,
-        fuzziness: parseInt(document.getElementById('fuzziness').value, 10)
-    };
-    return config;
-}
-
-</script>
+        function start() {
+            pywebview.api.start();
+        }
+        
+        function toggleButton() {
+            document.getElementById('startButton').disabled = !document.getElementById('startButton').disabled;
+        }
+        
+        function browse() {
+            pywebview.api.browseFolder().then(function (path) {
+                document.getElementById('path').value = path;
+            });  
+        }
+        
+        function updateProgress(v, s, f) {
+            document.getElementById('progress').value = v;
+            document.getElementById('percent').innerText = v;
+            document.getElementById('success').innerText = s;
+            document.getElementById('failed').innerText = f;
+        }
+        
+        function getConfig() {
+            var config =  {
+                tags: [],
+                artResolution: document.getElementById('artResolution').value,
+                replaceArt: document.getElementById('replaceArt').checked,
+                artistSeparator: document.getElementById('artistSeparator').value,
+                fuzziness: parseInt(document.getElementById('fuzziness').value, 10)
+            };
+            //Add tags
+            if (document.getElementById('updateTitle').checked)
+                config.tags.push('title');
+            if (document.getElementById('updateArtists').checked)
+                config.tags.push('artist');
+            if (document.getElementById('updateAlbum').checked)
+                config.tags.push('album')
+            if (document.getElementById('updateLabel').checked)
+                config.tags.push('label')
+            if (document.getElementById('updateBPM').checked)
+                config.tags.push('bpm')
+            if (document.getElementById('updateGenre').checked)
+                config.tags.push('genre')
+            if (document.getElementById('updateDate').checked)
+                config.tags.push('date')
+            if (document.getElementById('updateKey').checked)
+                config.tags.push('key')
+        
+            return config;
+        }
+        
+    </script>        
+</html>
