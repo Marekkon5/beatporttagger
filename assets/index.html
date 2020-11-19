@@ -5,40 +5,37 @@
         <meta charset="ISO-8859-1"> 
         <link href='style.css' rel='stylesheet'>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald:300&display=swap">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:700&display=swap">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:600,400,700&display=swap">
     </head>
     <body>
         <h1>Beatport Tagger</h1>
         <div class='content'>
             <h2>INPUT</h2>
-            <div>
+            <div style="padding-top: 6px;">
                 <input type="text" id="path" class="path-input">
-                <button onclick="browse()" style="margin-left: 10px;">BROWSE</button>
+                <button class='button-browse' onclick="browse()" style="letter-spacing: 5px; font-family: 'Source Sans Pro', sans-serif;">&bull;&bull;&bull;</button>
             </div>
             <h2>SETTINGS</h2>
             <div class="checkbox-container circular-container">
                 <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
                     <input type="checkbox" id="replaceArt">
-                    <label for="replaceArt" class="checkbox-label">Replace
-                        Album Art
-                    </label>
+                    <label for="replaceArt" class="checkbox-label">Replace Album Art </label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
-            <div class="text-input">
+            <div class="text-input" style="padding-top: 2px;">
                 <label for="artResolution">Album Art Resolution:</label>
-                <input type="number" id="artResolution" value="1000" min="100" max="3000" step="100">
+                <input type="number" id="artResolution" value="500" min="100" max="3000" step="100">
             </div>
             <div class="text-input">
                 <label for="artistSeparator">Artist Separator:</label>
                 <input type="text" id="artistSeparator" value="; ">
             </div>
-            <div class="text-input">
+            <div class="text-input" style="margin-top: -1px;">
                 <label for="fuzziness">Strictness (%):</label>
-                <input type="number" id="fuzziness" value="80" min="10" max="100" step="1">
+                <input type="number" id="fuzziness" value="80" min="10" max="100" step="1" style="margin-top: -2px;">
             </div>
-            <h2>TAGS</h2>
+            <h3>TAGS</h3>
             <div class="checkbox-container-edit circular-container">
                 <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
                     <input type="checkbox" id="updateTitle">
@@ -84,7 +81,14 @@
             <div class="checkbox-container-edit circular-container">
                 <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
                     <input type="checkbox" id="updateDate">
-                    <label for="updateDate" class="checkbox-label">Date</label>
+                    <label for="updateDate" class="checkbox-label">Release Date</label>
+                    <span class="checkbox-custom circular"></span>
+                </label>
+            </div>
+            <div class="checkbox-container-edit circular-container">
+                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                    <input type="checkbox" id="updatePublishDate">
+                    <label for="updatePublishDate" class="checkbox-label">Publish Date</label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
@@ -95,48 +99,63 @@
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
+            <div class="checkbox-container-edit circular-container">
+                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                    <input type="checkbox" id="updateOther">
+                    <label for="updateOther" class="checkbox-label">URLs</label>
+                    <span class="checkbox-custom circular"></span>
+                </label>
+            </div>
         </div>
-        <button class='start-button' onclick='start()' style="line-height: 20px;" id='startButton'>START</button>
+        <button class='button-start' onclick='start()' style="line-height: 20px;" id='startButton'>START</button>
         <br>
         <div class='bottom-bar'>
             <progress id='progress' class='progress' value='0' max='100'></progress>
             <br>
             <br>
             <div class='progression'>
-                <span>PROGRESS: <span id="percent">0</span>%&nbsp; &nbsp; SUCCESSFUL: <span id="success">0</span>&nbsp; &nbsp; FAILED: <span id="failed">0</span></span>
+                <span style="font-family: 'Source Sans Pro', sans-serif; font-weight: 400; font-size: 14;">PROGRESS: <span id="percent">0</span>%&nbsp; &nbsp; SUCCESSFUL: <span id="success">0</span>&nbsp; &nbsp; FAILED: <span id="failed">0</span></span>
             </div>
         </div>
     </body>
     <script>
 
+        //XMLHttpRequest, because some browsers don't have fetch (shit mac)
+        function GET(url) {
+            return new Promise(function (res, rej) {
+                var http = new XMLHttpRequest();
+                http.open('GET', url);
+                http.onreadystatechange = function() {
+                    if (http.readyState == 4 && http.status == 200) {
+                        res(http.responseText);
+                    }
+                }
+                http.send();
+            });
+        }
+
+        function POST(url, body) {
+            return new Promise(function (res, rej) {
+                var http = new XMLHttpRequest();
+                http.open('POST', url);
+                http.onreadystatechange = function() {
+                    if (http.readyState == 4 && http.status == 200) {
+                        res(http.responseText);
+                    }
+                }
+                http.send(body);
+            });
+        }
+
+        var interval;
         function start() {
-            pywebview.api.start();
-        }
-        
-        function toggleButton() {
-            document.getElementById('startButton').disabled = !document.getElementById('startButton').disabled;
-        }
-        
-        function browse() {
-            pywebview.api.browseFolder().then(function (path) {
-                document.getElementById('path').value = path;
-            });  
-        }
-        
-        function updateProgress(v, s, f) {
-            document.getElementById('progress').value = v;
-            document.getElementById('percent').innerText = v;
-            document.getElementById('success').innerText = s;
-            document.getElementById('failed').innerText = f;
-        }
-        
-        function getConfig() {
             var config =  {
                 tags: [],
                 artResolution: document.getElementById('artResolution').value,
                 replaceArt: document.getElementById('replaceArt').checked,
                 artistSeparator: document.getElementById('artistSeparator').value,
-                fuzziness: parseInt(document.getElementById('fuzziness').value, 10)
+                fuzziness: parseInt(document.getElementById('fuzziness').value, 10),
+                path: document.getElementById('path').value
             };
             //Add tags
             if (document.getElementById('updateTitle').checked)
@@ -144,20 +163,64 @@
             if (document.getElementById('updateArtists').checked)
                 config.tags.push('artist');
             if (document.getElementById('updateAlbum').checked)
-                config.tags.push('album')
+                config.tags.push('album');
             if (document.getElementById('updateLabel').checked)
-                config.tags.push('label')
+                config.tags.push('label');
             if (document.getElementById('updateBPM').checked)
-                config.tags.push('bpm')
+                config.tags.push('bpm');
             if (document.getElementById('updateGenre').checked)
-                config.tags.push('genre')
+                config.tags.push('genre');
             if (document.getElementById('updateDate').checked)
-                config.tags.push('date')
+                config.tags.push('date');
             if (document.getElementById('updateKey').checked)
-                config.tags.push('key')
-        
-            return config;
+                config.tags.push('key');
+            if (document.getElementById('updatePublishDate').checked)
+                config.tags.push('publishdate');
+            if (document.getElementById('updateOther').checked)
+                config.tags.push('other');
+
+            POST('/start', JSON.stringify(config)).then(function (data) {
+                //If not empty = error
+                if (data != '') {
+                    alert(data);
+                //Update progress
+                } else {
+                    //Disable button
+                    document.getElementById('startButton').disabled = true;
+                    //Update progress interval
+                    interval = setInterval(function() {
+                        GET('/progress').then(function (data) {
+                            onProgress(JSON.parse(data));
+                        });
+                    }, 350);
+                }
+            });
         }
-        
-    </script>        
+
+        function onProgress(data) {
+            if (!data || !data.percent) return;
+            //Update UI
+            document.getElementById('progress').value = data.percent;
+            document.getElementById('percent').innerText = data.percent;
+            document.getElementById('success').innerText = data.success;
+            document.getElementById('failed').innerText = data.failed;
+            //If done
+            if (data.percent >= 100) {
+                if (interval) {
+                    clearInterval(interval);
+                    interval = null;
+                }
+                document.getElementById('startButton').disabled = false;
+                alert('Done!');
+            }
+            
+        }
+
+        function browse() {
+            GET('/browse').then(function (data) {
+                if (data != '')
+                    document.getElementById('path').value = data;
+            });
+        }
+    </script>     
 </html>

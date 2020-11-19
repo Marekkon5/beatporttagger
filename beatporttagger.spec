@@ -6,7 +6,7 @@ block_cipher = None
 a = Analysis(['beatporttagger.py'],
              pathex=['/home/marekkon5/Projects/beatportgenre'],
              binaries=[],
-             datas=[('html/*', 'html')],
+             datas=[('assets/*', 'assets')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -30,4 +30,4 @@ exe = EXE(pyz,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=True , icon='icon.ico')
+          console=True , icon='assets/icon.ico')

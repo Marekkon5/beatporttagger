@@ -1,14 +1,17 @@
 import os
 import requests
 import logging
+import threading
+import copy
+import time
 
 from enum import Enum
-from mutagen.id3 import ID3, TIT2, TPE1, TALB, TPUB, TBPM, TCON, TDAT, TYER, APIC, TKEY
+from mutagen.id3 import ID3, TIT2, TPE1, TALB, TPUB, TBPM, TCON, TDAT, TYER, APIC, TKEY, TORY, TXXX
 from mutagen.flac import FLAC, Picture
 
 import beatport
 
-UpdatableTags = Enum('UpdatableTags', 'title artist album label bpm genre date key')
+UpdatableTags = Enum('UpdatableTags', 'title artist album label bpm genre date key other publishdate')
 
 class TagUpdaterConfig:
 
@@ -55,51 +58,74 @@ class TagUpdater:
                     files.append(os.path.join(root, file))
         self.total = len(files)
 
-        for file in files:
-            title, artists = None, None
-            file_type = None
-            try:
-                #MP3 Files
-                if file.lower().endswith('.mp3'):
-                    title, artists = self.info_mp3(file)
-                    file_type = 'mp3'
-                #FLAC
-                if file.lower().endswith('.flac'):
-                    title, artists = self.info_flac(file)
-                    file_type = 'flac'
-            except Exception:
-                logging.error('Invalid file: ' + file)
-                self._fail(file)
-                continue
+        #Threads
+        threads = []
+        available = copy.deepcopy(files)
+        while len(available) > 0 or len(threads) > 0:
+            #Create new threads
+            while len(threads) < 16 and len(available) > 0:
+                t = threading.Thread(target=self.tag_file, args=(available[0],))
+                t.daemon = True
+                t.start()
+                threads.append(t)
+                available.pop(0)
 
-            if title == None or artists == None:
-                self._fail(file)
-                logging.error('No metadata in file: ' + file)
-                continue
-
-            logging.info('Processing file: ' + file)
-            #Search
-            track = None
-            try:
-                track = self.beatport.match_track(title, artists, fuzzywuzzy_ratio=self.config.fuzziness)
-            except Exception as e:
-                logging.error(f'Matching failed: {file}, {str(e)}')
-                self._fail(file)
-                continue
-
-            if track == None:
-                logging.error('Track not found on Beatport! ' + file)
-                self._fail(file)
-                continue
-
-            #Update files
-            if file_type == 'mp3':
-                self.update_mp3(file, track)
-            if file_type == 'flac':
-                self.update_flac(file, track)
+            #Remove done
+            for i in range(0, len(threads)):
+                #Out of bounds
+                if i >= len(threads):
+                    break
+                if not threads[i].is_alive():
+                    threads.pop(i)
+                    
+            #Prevent infinite loop
+            time.sleep(0.005)
             
-            self._ok(file)
             
+    def tag_file(self, file):
+        title, artists = None, None
+        file_type = None
+        try:
+            #MP3 Files
+            if file.lower().endswith('.mp3'):
+                title, artists = self.info_mp3(file)
+                file_type = 'mp3'
+            #FLAC
+            if file.lower().endswith('.flac'):
+                title, artists = self.info_flac(file)
+                file_type = 'flac'
+        except Exception:
+            logging.error('Invalid file: ' + file)
+            self._fail(file)
+            return
+
+        if title == None or artists == None:
+            self._fail(file)
+            logging.error('No metadata in file: ' + file)
+            return
+
+        logging.info('Processing file: ' + file)
+        #Search
+        track = None
+        try:
+            track = self.beatport.match_track(title, artists, fuzzywuzzy_ratio=self.config.fuzziness)
+        except Exception as e:
+            logging.error(f'Matching failed: {file}, {str(e)}')
+            self._fail(file)
+            return
+
+        if track == None:
+            logging.error('Track not found on Beatport! ' + file)
+            self._fail(file)
+            return
+
+        #Update files
+        if file_type == 'mp3':
+            self.update_mp3(file, track)
+        if file_type == 'flac':
+            self.update_flac(file, track)
+        self._ok(file)
+
 
 
     def update_mp3(self, path: str, track: beatport.Track):
@@ -124,7 +150,12 @@ class TagUpdater:
             f['TYER'] = TYER(text=str(track.release_date.year))
         if UpdatableTags.key in self.config.update_tags:
             f['TKEY'] = TKEY(text=track.id3key())
-        
+        if UpdatableTags.publishdate in self.config.update_tags:
+            f['TORY'] = TORY(text=str(track.publish_date.year))
+        #Other keys
+        if UpdatableTags.other in self.config.update_tags:
+            f.add(TXXX(desc='WWWAUDIOFILE', text=track.url()))
+            f.add(TXXX(desc='WWWPUBLISHER', text=track.label.url('label')))
 
         #Redownlaod cover
         if self.config.replace_art:
@@ -168,6 +199,12 @@ class TagUpdater:
             #Year - part of date
         if UpdatableTags.key in self.config.update_tags:
             f['INITIALKEY'] = track.id3key()
+        if UpdatableTags.publishdate in self.config.update_tags:
+            f['ORIGINALDATE'] = str(track.publish_date.year)
+        #Other tags
+        if UpdatableTags.other in self.config.update_tags:
+            f['WWWAUDIOFILE'] = track.url()
+            f['WWWPUBLISHER'] = track.label.url('label')
 
         #Redownlaod cover
         if self.config.replace_art:

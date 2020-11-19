@@ -2,66 +2,111 @@ import webview
 import os
 import tagger
 import math
+import sys
+import json
+import threading
+import logging
 
-class JSAPI:
-    def __init__(self):
-        self.tagger = None
+from flask import Flask, send_from_directory, request
 
-    def browseFolder(self):
-        return window.create_file_dialog(dialog_type=webview.FOLDER_DIALOG, allow_multiple=False)
+#Disable Flask logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.WARN)
 
-    def start(self):
-        #Validate path
-        path = window.get_elements('#path')[0]['value']
-        if not os.path.exists(path):
-            window.evaluate_js('alert("Invalid path!")')
-            return
+progress = {}
+_tagger = None
 
-        #Disable button
-        window.evaluate_js('toggleButton()')
+#Get path to assets dir, for pyinstaller
+def assets_path():
+    path = os.getcwd()
+    try:
+        path = getattr(sys, '_MEIPASS')
+    except Exception:
+        pass
+    return os.path.join(path, 'assets')
 
-        #Generate config
-        jconfig = window.evaluate_js('getConfig()')
-        config = tagger.TagUpdaterConfig(
-            update_tags = [tagger.UpdatableTags[t] for t in jconfig['tags']],
-            replace_art=jconfig['replaceArt'],
-            art_resolution=jconfig['artResolution'],
-            artist_separator=jconfig['artistSeparator'],
-            fuzziness=jconfig['fuzziness']
-        )
+#Flask setup
+app = Flask(__name__, static_url_path='', static_folder=assets_path())
 
-        #Prepare tagger
-        self.tagger = tagger.TagUpdater(config, success_callback=self.success, fail_callback=self.fail)
-        self.tagger.tag_dir(path)
-        window.evaluate_js('alert("Done!")')
+@app.route('/')
+def index():
+    return send_from_directory(assets_path(), 'index.html')
 
-        #Reenable button
-        window.evaluate_js('toggleButton()')
-        
-        return
+#Browse for file
+@app.route('/browse')
+def browse():
+    p = window.create_file_dialog(dialog_type=webview.FOLDER_DIALOG, allow_multiple=False)
+    if p == None:
+        return ''
+    return p[0]
 
-    def success(self, path):
-        self.update()
+#Return text = error
+@app.route('/start', methods = ['POST'])
+def start():
+    data = request.get_json(force=True)
+    #Check path
+    path = data['path']
+    if not os.path.isdir(path):
+        return 'Invalid path!'
 
-    def fail(self, path):
-        self.update()
+    #Generate config
+    config = tagger.TagUpdaterConfig(
+        update_tags = [tagger.UpdatableTags[t] for t in data['tags']],
+        replace_art=data['replaceArt'],
+        art_resolution=data['artResolution'],
+        artist_separator=data['artistSeparator'],
+        fuzziness=data['fuzziness']
+    )
 
-    def update(self):
-        if self.tagger != None and self.tagger.total > 0:
-            #Percentage
-            p = (len(self.tagger.success) + len(self.tagger.fail)) / self.tagger.total
-            percent = math.floor(p*100)
-            window.evaluate_js(f'updateProgress({percent}, {len(self.tagger.success)}, {len(self.tagger.fail)})')
+    #Start
+    thread = threading.Thread(target=start_tagger, args=(config,path))
+    thread.start()
 
-window = webview.create_window(
-    'Beatport Tagger', 
-    'html/index.html',
-    resizable=False,
-    width=415,
-    height=760,
-    min_size=(415, 760),
-    js_api=JSAPI()
-)
+    return ''
+
+@app.route('/progress')
+def progress_request():
+    return json.dumps(progress)
+
+#Generate JSON with progress for UI
+def _update_progress(file):
+    global progress
+    if _tagger != None and _tagger.total > 0:
+        #Percentage
+        p = (len(_tagger.success) + len(_tagger.fail)) / _tagger.total
+        percent = math.floor(p*100)
+        progress = {
+            'percent': percent,
+            'success': len(_tagger.success),
+            'failed': len(_tagger.fail)
+        }
+
+def start_tagger(config, path):
+    global progress
+    global _tagger
+    #Reset progress
+    progress = {}
+    _tagger = tagger.TagUpdater(config, success_callback=_update_progress, fail_callback=_update_progress)
+    _tagger.tag_dir(path)
+
+def start_flask():
+    cli = sys.modules['flask.cli']
+    cli.show_server_banner = lambda *x: None
+    app.run(host='127.0.0.1', port=36958)
 
 if __name__ == '__main__':
+    #Flask
+    thread = threading.Thread(target=start_flask)
+    thread.daemon = True
+    thread.start()
+    #Pywebview
+    window = webview.create_window(
+        'Beatport Tagger', 
+        'http://localhost:36958/',
+        resizable=False,
+        width=400,
+        height=806,
+        min_size=(400, 806),
+    )
     webview.start(debug=False)
+    sys.exit()

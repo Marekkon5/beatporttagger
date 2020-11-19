@@ -113,11 +113,14 @@ class Track:
         self.key = data['key']
         self.label = BPSmall(data['label'])
         self.mix = data['mix']
+        self.exclusive = data['exclusive']
+        self.slug = data['slug']
         #Without remix/version stuff
         self.name = data['name']
         #Full title
         self.title = data['title']
         self.release_date = datetime.datetime.strptime(data['date']['released'], '%Y-%m-%d')
+        self.publish_date = datetime.datetime.strptime(data['date']['published'], '%Y-%m-%d')
 
     def art(self, resolution: int):
         return self._art.replace('{x}', str(resolution)).replace('{y}', str(resolution)).replace('{w}', str(resolution)).replace('{h}', str(resolution))
@@ -126,6 +129,9 @@ class Track:
     def id3key(self):
         return self.key.replace('\u266d', 'b').replace('\u266f', '#').replace('min', 'm').replace('maj', '').replace(' ', '')
 
+    def url(self):
+        return f'https://beatport.com/track/{self.slug}/{self.id}'
+
 #Datatype for sub-types in track data
 class BPSmall:
 
@@ -133,3 +139,6 @@ class BPSmall:
         self.name = data['name']
         self.id = data['id']
         self.slug = data['slug']
+
+    def url(self, type):
+        return f'https://beatport.com/{type}/{self.slug}/{self.id}'

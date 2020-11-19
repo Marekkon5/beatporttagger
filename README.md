@@ -1,6 +1,6 @@
 # Beatport Tagger
 
-![Logo](https://github.com/Marekkon5/beatporttagger/raw/main/icon64.png "Logo")
+![Logo](https://github.com/Marekkon5/beatporttagger/raw/main/assets/icon64.png "Logo")
 
 Simple Python app to update your audio tags & cover with data from Beatport using scrapping (no paid API).
 
@@ -10,7 +10,7 @@ Install dependencies:
 ```
 pip install --user -r requirements.txt
 ```
-**Windows**: If you get errors installing dependencies, use Python 3.6 exactly.  
+If you get errors installing dependencies, use Python 3.7 (or 3.6).  
 
 Run:
 ```
