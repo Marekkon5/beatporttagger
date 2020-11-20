@@ -27,7 +27,7 @@ Should be saved in `dist` folder.
 
 Comparison of strictness settings and simillar projects: https://docs.google.com/spreadsheets/d/1k-grRDQszg2B99CpoK81_cHODy0DwvdhsIAhob0ezJU/edit?usp=sharing  
 
-Trailer: https://youtu.be/wJbpoClHH6c
+Trailer: https://youtu.be/D_-ZAX5MIig
 
 ## Credits:
 UI, icon, idea, trailer, comparisons and request by Bas Curtiz
