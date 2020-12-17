@@ -55,7 +55,8 @@ def start():
         replace_art=data['replaceArt'],
         art_resolution=data['artResolution'],
         artist_separator=data['artistSeparator'],
-        fuzziness=data['fuzziness']
+        fuzziness=data['fuzziness'],
+        overwrite=data['overwrite']
     )
 
     #Start
@@ -105,8 +106,8 @@ if __name__ == '__main__':
         'http://localhost:36958/',
         resizable=False,
         width=400,
-        height=806,
-        min_size=(400, 806),
+        height=845,
+        min_size=(400, 845),
     )
     webview.start(debug=False)
     sys.exit()

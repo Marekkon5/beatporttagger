@@ -52,8 +52,7 @@ h2 {
     border: 0px solid #efefef;
     border-radius: 2px;
     background-color: #94D500;
-    margin-top: 0px;
-    margin-bottom: 14px;
+    margin-top: 19px;
     width: 270px;
     height: 36px;
     font-size: 20px;
@@ -62,6 +61,10 @@ h2 {
     color: #262626;
     font-family: 'Oswald', sans-serif;
     font-weight: 700;
+}
+
+#overwrite {
+    margin-bottom: 8px;
 }
 
 .button-start:hover {

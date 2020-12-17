@@ -23,6 +23,13 @@
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
+            <div class="checkbox-container circular-container">
+                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                    <input type="checkbox" id="overwrite">
+                    <label for="overwrite" class="checkbox-label">Overwrite </label>
+                    <span class="checkbox-custom circular"></span>
+                </label>
+            </div>
             <div class="text-input" style="padding-top: 2px;">
                 <label for="artResolution">Album Art Resolution:</label>
                 <input type="number" id="artResolution" value="500" min="100" max="3000" step="100">
@@ -155,7 +162,8 @@
                 replaceArt: document.getElementById('replaceArt').checked,
                 artistSeparator: document.getElementById('artistSeparator').value,
                 fuzziness: parseInt(document.getElementById('fuzziness').value, 10),
-                path: document.getElementById('path').value
+                path: document.getElementById('path').value,
+                overwrite: document.getElementById('overwrite').checked
             };
             //Add tags
             if (document.getElementById('updateTitle').checked)
