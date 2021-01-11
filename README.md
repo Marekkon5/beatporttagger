@@ -4,6 +4,8 @@
 
 Simple Python app to update your audio tags & cover with data from Beatport using scrapping (no paid API).
 
+![Screenshot](https://github.com/Marekkon5/beatporttagger/raw/main/assets/screenshot.png)
+
 ## How to compile:
 
 Install dependencies:

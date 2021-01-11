@@ -1,5 +1,6 @@
 import webview
 import os
+import sys
 import tagger
 import math
 import sys
@@ -7,7 +8,7 @@ import json
 import threading
 import logging
 
-from flask import Flask, send_from_directory, request
+from flask import Flask, send_from_directory, request, send_file
 
 #Disable Flask logging
 log = logging.getLogger('werkzeug')
@@ -27,10 +28,20 @@ def assets_path():
 
 #Flask setup
 app = Flask(__name__, static_url_path='', static_folder=assets_path())
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 @app.route('/')
 def index():
     return send_from_directory(assets_path(), 'index.html')
+
+@app.route('/failed')
+def send_failed():
+    if len(_tagger.fail) > 1:
+        prefix = os.path.commonprefix(_tagger.fail)
+        failed = [f.replace(prefix, '') for f in _tagger.fail]
+        return json.dumps(failed)
+    return json.dumps(_tagger.fail)
 
 #Browse for file
 @app.route('/browse')
@@ -56,7 +67,8 @@ def start():
         art_resolution=data['artResolution'],
         artist_separator=data['artistSeparator'],
         fuzziness=data['fuzziness'],
-        overwrite=data['overwrite']
+        overwrite=data['overwrite'],
+        id3v23=data['id3v23']
     )
 
     #Start
@@ -106,8 +118,11 @@ if __name__ == '__main__':
         'http://localhost:36958/',
         resizable=False,
         width=400,
-        height=845,
-        min_size=(400, 845),
+        height=725,
+        min_size=(400, 725),
     )
-    webview.start(debug=False)
+    if sys.platform == 'win32':
+        webview.start(debug=True, gui='cef')
+    else:
+        webview.start(debug=True)
     sys.exit()

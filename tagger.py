@@ -4,25 +4,38 @@ import logging
 import threading
 import copy
 import time
+import sys
 
 from enum import Enum
-from mutagen.id3 import ID3, TIT2, TPE1, TALB, TPUB, TBPM, TCON, TDAT, TYER, APIC, TKEY, TORY, TXXX
+from mutagen.id3 import ID3, TIT2, TPE1, TALB, TPUB, TBPM, TCON, TDAT, TYER, APIC, TKEY, TORY, TXXX, TDRC, TDRL
 from mutagen.flac import FLAC, Picture
 from mutagen.aiff import AIFF
 
 import beatport
 
+
+# Configure logging
+# LOGFILE = 'log.txt'
+# logging.basicConfig(
+#     filename=LOGFILE, 
+#     filemode='a', 
+#     format='%(asctime)s %(levelname)s %(message)s', 
+#     datefmt='%H:%M:%S', 
+#     level=logging.INFO
+# )
+
 UpdatableTags = Enum('UpdatableTags', 'title artist album label bpm genre date key other publishdate')
 
 class TagUpdaterConfig:
 
-    def __init__(self, update_tags = [UpdatableTags.genre], replace_art = False, artist_separator = ';', art_resolution = 1200, fuzziness = 80, overwrite = False):
+    def __init__(self, update_tags = [UpdatableTags.genre], replace_art = False, artist_separator = ';', art_resolution = 1200, fuzziness = 80, overwrite = False, id3v23=False):
         self.update_tags = update_tags
         self.replace_art = replace_art
         self.artist_separator = artist_separator
         self.art_resolution = art_resolution
         self.fuzziness = fuzziness
-        self.overwrite = overwrite
+        self.overwrite = overwrite,
+        self.id3v23 = id3v23
 
 class TagUpdater:
 
@@ -160,14 +173,31 @@ class TagUpdater:
             f.setall('TBPM', [TBPM(text=str(track.bpm))])
         if UpdatableTags.genre in self.config.update_tags and (self.config.overwrite or len(f.getall('TCON')) == 0):
             f.setall('TCON', [TCON(text=', '.join([g.name for g in track.genres]))])
-        if UpdatableTags.date in self.config.update_tags and (self.config.overwrite or (len(f.getall('TYER')) == 0 and len(f.getall('TDAT')) == 0)):
-            date = track.release_date.strftime('%d%m')
-            f.setall('TDAT', [TDAT(text=date)])
-            f.setall('TYER', [TYER(text=str(track.release_date.year))])
+        
+        #Dates
+        if UpdatableTags.date in self.config.update_tags:
+            #ID3 v2.3
+            if self.config.id3v23 and (self.config.overwrite or (len(f.getall('TYER')) == 0 and len(f.getall('TDAT')) == 0)):
+                date = track.release_date.strftime('%d%m')
+                f.setall('TDRC', [])
+                f.setall('TDAT', [TDAT(text=date)])
+                f.setall('TYER', [TYER(text=str(track.release_date.year))])
+            #ID3 v2.4
+            if not self.config.id3v23 and (self.config.overwrite or len(f.getall('TDRC')) == 0):
+                date = track.release_date.strftime('%Y-%m-%d')
+                f.setall('TDAT', [])
+                f.setall('TYER', [])
+                f.setall('TDRC', [TDRC(text=date)])
+        
+
         if UpdatableTags.key in self.config.update_tags and (self.config.overwrite or len(f.getall('TKEY')) == 0):
             f.setall('TKEY', [TKEY(text=track.id3key())])
-        if UpdatableTags.publishdate in self.config.update_tags and (self.config.overwrite or len(f.getall('TORY')) == 0):
-            f.setall('TORY', [TORY(text=str(track.publish_date.year))])
+        if UpdatableTags.publishdate in self.config.update_tags and (self.config.overwrite or len(f.getall('TDRL')) == 0):
+            # f.setall('TORY', [TORY(text=str(track.publish_date.year))])
+            if not self.config.id3v23:
+                date = track.publish_date.strftime('%Y-%m-%d')
+                f.setall('TDRL', [TDRL(text=date)])
+
         #Other keys
         if UpdatableTags.other in self.config.update_tags:
             f.add(TXXX(desc='WWWAUDIOFILE', text=track.url()))
@@ -191,8 +221,11 @@ class TagUpdater:
             except Exception:
                 logging.warning('Error downloading cover for file: ' + path)
 
-        if aiff == None:    
-            f.save(path, v2_version=3, v1=0)
+        if aiff == None:
+            if self.config.id3v23:
+                f.save(path, v2_version=3, v1=0)
+            else:
+                f.save(path, v2_version=4, v1=0)
         else:
             aiff.save()
 

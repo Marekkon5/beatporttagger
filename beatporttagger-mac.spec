@@ -4,11 +4,11 @@ block_cipher = None
 
 
 a = Analysis(['beatporttagger.py'],
-             pathex=['/home/marekkon5/Projects/beatportgenre'],
+             pathex=[''],
              binaries=[],
              datas=[('assets/*', 'assets')],
              hiddenimports=[],
-             hookspath=['.'],
+             hookspath=[],
              runtime_hooks=[],
              excludes=[],
              win_no_prefer_redirects=False,
@@ -30,4 +30,9 @@ exe = EXE(pyz,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=False, icon='assets/icon.ico')
+          console=False, icon='assets/icon.icns')
+app = BUNDLE(exe,
+             name='beatporttagger.app',
+             icon='assets/icon.icns',
+             bundle_identifier=None)
+

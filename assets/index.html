@@ -1,14 +1,15 @@
 <html>
     <head>
         <link rel='icon' type='image/png' href='/favicon.png'>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta charset="ISO-8859-1"> 
         <link href='style.css' rel='stylesheet'>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald:300&display=swap">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:600,400,700&display=swap">
     </head>
     <body>
-        <h1>Beatport Tagger</h1>
+	
+	    <h1>Beatport Tagger</h1>
         <div class='content'>
             <h2>INPUT</h2>
             <div style="padding-top: 6px;">
@@ -17,104 +18,115 @@
             </div>
             <h2>SETTINGS</h2>
             <div class="checkbox-container circular-container">
-                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                <label class="checkbox-label">&nbsp; &nbsp;
                     <input type="checkbox" id="replaceArt">
                     <label for="replaceArt" class="checkbox-label">Replace Album Art </label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
             <div class="checkbox-container circular-container">
-                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                <label class="checkbox-label">&nbsp; &nbsp;
                     <input type="checkbox" id="overwrite">
-                    <label for="overwrite" class="checkbox-label">Overwrite </label>
+                    <label for="overwrite" class="checkbox-label">Overwrite Tags</label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
-            <div class="text-input" style="padding-top: 2px;">
-                <label for="artResolution">Album Art Resolution:</label>
-                <input type="number" id="artResolution" value="500" min="100" max="3000" step="100">
-            </div>
-            <div class="text-input">
-                <label for="artistSeparator">Artist Separator:</label>
-                <input type="text" id="artistSeparator" value="; ">
-            </div>
-            <div class="text-input" style="margin-top: -1px;">
-                <label for="fuzziness">Strictness (%):</label>
-                <input type="number" id="fuzziness" value="80" min="10" max="100" step="1" style="margin-top: -2px;">
+            <div style="clear:both;"></div>
+            <div>
+                <div class="id3">ID3v2.3</div>
+                <div class="toggle">
+                    <!-- Rounded switch -->
+                    <label class="switch">
+                        <input type="checkbox" id="id3v23">
+                        <div class="slider round"></div>                         
+                    </label>
+                </div>
+                <div class="text-input">
+                    <label for="artResolution">Album Art Resolution:</label>
+                    <input type="number" id="artResolution" value="500" min="100" max="3000" step="100" style="margin-top: -2px;">
+                </div>
+                <div class="text-input">
+                    <label for="artistSeparator">Artist Separator:</label>
+                    <input type="text" id="artistSeparator" value="; " style="margin-top: -4px;">
+                </div>
+                <div class="text-input" style="margin-top: -1px;">
+                    <label for="fuzziness">Strictness (%):</label>
+                    <input type="number" id="fuzziness" value="80" min="10" max="100" step="1" style="margin-top: -6px;">
+                </div>
             </div>
             <h3>TAGS</h3>
             <div class="checkbox-container-edit circular-container">
-                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                <label class="checkbox-label">&nbsp; &nbsp;
                     <input type="checkbox" id="updateTitle">
                     <label for="updateTitle" class="checkbox-label">Title</label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
             <div class="checkbox-container-edit circular-container">
-                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                <label class="checkbox-label">&nbsp; &nbsp;
                     <input type="checkbox" id="updateArtists">
                     <label for="updateArtists" class="checkbox-label">Artists</label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
             <div class="checkbox-container-edit circular-container">
-                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                <label class="checkbox-label">&nbsp; &nbsp;
                     <input type="checkbox" id="updateAlbum">
                     <label for="updateAlbum" class="checkbox-label">Album</label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
             <div class="checkbox-container-edit circular-container">
-                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                <label class="checkbox-label">&nbsp; &nbsp;
                     <input type="checkbox" id="updateLabel">
                     <label for="updateLabel" class="checkbox-label">Label</label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
             <div class="checkbox-container-edit circular-container">
-                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                <label class="checkbox-label">&nbsp; &nbsp;
                     <input type="checkbox" id="updateBPM">
                     <label for="updateBPM" class="checkbox-label">BPM</label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
             <div class="checkbox-container-edit circular-container">
-                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                <label class="checkbox-label">&nbsp; &nbsp;
                     <input type="checkbox" id="updateGenre" checked="">
                     <label for="updateGenre" class="checkbox-label">Genre</label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
             <div class="checkbox-container-edit circular-container">
-                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                <label class="checkbox-label">&nbsp; &nbsp;
                     <input type="checkbox" id="updateDate">
                     <label for="updateDate" class="checkbox-label">Release Date</label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
             <div class="checkbox-container-edit circular-container">
-                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                <label class="checkbox-label">&nbsp; &nbsp;
                     <input type="checkbox" id="updatePublishDate">
                     <label for="updatePublishDate" class="checkbox-label">Publish Date</label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
             <div class="checkbox-container-edit circular-container">
-                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                <label class="checkbox-label">&nbsp; &nbsp;
                     <input type="checkbox" id="updateKey">
                     <label for="updateKey" class="checkbox-label">Key</label>
                     <span class="checkbox-custom circular"></span>
                 </label>
             </div>
             <div class="checkbox-container-edit circular-container">
-                <label class="checkbox-label">&nbsp; &nbsp;&nbsp;
+                <label class="checkbox-label">&nbsp; &nbsp;
                     <input type="checkbox" id="updateOther">
                     <label for="updateOther" class="checkbox-label">URLs</label>
                     <span class="checkbox-custom circular"></span>
                 </label>
-            </div>
+            </div>             
         </div>
-        <button class='button-start' onclick='start()' style="line-height: 20px;" id='startButton'>START</button>
+        <button class='button-start' onclick='start()' id='startButton'>START</button>
         <br>
         <div class='bottom-bar'>
             <progress id='progress' class='progress' value='0' max='100'></progress>
@@ -123,7 +135,26 @@
             <div class='progression'>
                 <span style="font-family: 'Source Sans Pro', sans-serif; font-weight: 400; font-size: 14;">PROGRESS: <span id="percent">0</span>%&nbsp; &nbsp; SUCCESSFUL: <span id="success">0</span>&nbsp; &nbsp; FAILED: <span id="failed">0</span></span>
             </div>
-        </div>
+        </div>	
+		
+
+
+        <!-- The Modal -->
+        <div id="modal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="close">&times;</span>
+                    <h2>DONE!</h2>
+                </div>
+                <div class="modal-body" id='modalBody'>
+                    <br>
+                   <span style="color:#FF53A0">FAILED / NOT FOUND:</span> 
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>		
     </body>
     <script>
 
@@ -163,7 +194,8 @@
                 artistSeparator: document.getElementById('artistSeparator').value,
                 fuzziness: parseInt(document.getElementById('fuzziness').value, 10),
                 path: document.getElementById('path').value,
-                overwrite: document.getElementById('overwrite').checked
+                overwrite: document.getElementById('overwrite').checked,
+                id3v23: document.getElementById('id3v23').checked
             };
             //Add tags
             if (document.getElementById('updateTitle').checked)
@@ -219,16 +251,49 @@
                     interval = null;
                 }
                 document.getElementById('startButton').disabled = false;
-                alert('Done!');
+
+                GET('/failed').then((function (data) {
+                    var json = JSON.parse(data);
+                    var m = document.getElementById('modalBody');
+                    for (var file of json) {
+                        var elem = document.createElement('div');
+                        elem.classList.add('failedname');
+                        elem.innerText = file;
+                        m.appendChild(elem);
+                    }
+                }));
+
+                //Show modal
+                modal.style.display = "block";
+                span.onclick = function() {  
+                    modal.style.display = "none";
+                }
             }
-            
         }
+			
 
         function browse() {
             GET('/browse').then(function (data) {
                 if (data != '')
                     document.getElementById('path').value = data;
             });
+        }	
+
+        //Get the modal
+        var modal = document.getElementById("modal");
+        var span = document.getElementsByClassName("close")[0];
+
+        //When the user clicks on <span> (x), close the modal
+        span.onclick = function() {
+            modal.style.display = "none";
         }
+
+        //When the user clicks anywhere outside of the modal, close it
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+		
     </script>     
 </html>
