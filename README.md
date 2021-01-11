@@ -6,7 +6,59 @@ Simple Python app to update your audio tags & cover with data from Beatport usin
 
 ![Screenshot](https://raw.githubusercontent.com/Marekkon5/beatporttagger/main/assets/screenshot.jpg)
 
-## How to compile:
+# Compatibility
+<table>
+    <thead>
+        <tr>
+            <th>Tested on platform</th>
+            <th>Works correctly</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Windows 7</td>
+            <td>✅</td>
+        </tr>
+        <tr>
+            <td>Windows 10</td>
+            <td>✅</td>
+        </tr>
+        <tr>
+            <td>macOS El Capitan</td>
+            <td>✅</td>
+        </tr>
+        <tr>
+            <td>macOS Catalina</td>
+            <td>✅</td>
+        </tr>
+        <tr>
+            <td>macOS Big Sur</td>
+            <td>✅</td>
+        </tr>
+        <tr>
+            <td>Linux</td>
+            <td>✅</td>
+        </tr>
+    </tbody>
+</table>
+
+# Troubleshooting
+
+## MacOS:
+
+If you get a warning on macOS, this app can't be opened for whatever reason:  
+- Click Apple icon on top left
+- Click System Preferences
+- Click Security & Privacy
+- Click Open Anyway
+
+## Windows:
+
+If you get an error opening the app like: "(Exception from HRESULT: 0x80010007 (RPC_E_SERVER_DIED))"  
+- Try to run it without Admin rights.
+- In order to do so, make sure <a href="https://articulate.com/support/article/how-to-turn-user-account-control-on-or-off-in-windows-10">UAC</a> is enabled.
+
+# How to compile:
 
 Install dependencies:
 ```
@@ -22,6 +74,10 @@ Compile Binary:
 ```
 pip install pyinstaller
 pyinstaller --onefile beatporttagger.spec
+```
+MacOS Binary:
+```
+pyinstaller --onefile beatporttagger-mac.spec
 ```
 Should be saved in `dist` folder.  
 
