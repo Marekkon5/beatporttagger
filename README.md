@@ -57,12 +57,20 @@ If you get a warning on macOS, this app can't be opened for whatever reason:
 If you get an error opening the app like: "(Exception from HRESULT: 0x80010007 (RPC_E_SERVER_DIED))"  
 - Try to run it without Admin rights.
 - In order to do so, make sure <a href="https://articulate.com/support/article/how-to-turn-user-account-control-on-or-off-in-windows-10">UAC</a> is enabled.
+- If you get `Python.Runtime not found` during compiling, run the following commands:
+```
+pip uninstall pythonnet
+pip install pythonnet
+```
+And try again, if doesn't work, try different Python version
 
 # How to compile:
 
 Install dependencies:
 ```
 pip install --user -r requirements.txt
+# If Windows, do also:
+pip install cefpython3 --user
 ```
 If you get errors installing dependencies, use Python 3.7 (or 3.6).  
 
