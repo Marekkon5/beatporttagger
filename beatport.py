@@ -118,8 +118,7 @@ class Track:
         #Without remix/version stuff
         self.name = data['name']
         #Full title
-        # self.title = data['title']
-        self.title = f"{data['name']} ({data['mix']})"
+        self.title = data['title']
         self.release_date = datetime.datetime.strptime(data['date']['released'], '%Y-%m-%d')
         self.publish_date = datetime.datetime.strptime(data['date']['published'], '%Y-%m-%d')
 
