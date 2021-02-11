@@ -119,6 +119,9 @@ class Track:
         self.name = data['name']
         #Full title
         self.title = data['title']
+        if self.title == None or self.title == "" or self.title == " ":
+            self.title = f"{data['name']} ({data['mix']})"
+
         self.release_date = datetime.datetime.strptime(data['date']['released'], '%Y-%m-%d')
         self.publish_date = datetime.datetime.strptime(data['date']['published'], '%Y-%m-%d')
 
