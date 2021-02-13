@@ -36,17 +36,12 @@ class Beatport:
         tracks = self.search_tracks(query)
 
         clean_title = self._clean_title(title)
-        #Add original mix if not mix
-        if '(' and ')' in title:
-            clean_title_om = clean_title
-        else:
-            clean_title_om = self._clean_title(title + ' (Original Mix)')
         clean_artists = self._clean_artists(artists)
 
         fuzzy_matches = []
         for track in tracks:
             #Match title
-            if clean_title == self._clean_title(track.title) or clean_title_om == self._clean_title(track.name):
+            if clean_title == self._clean_title(track.title):
                 #Match single artists
                 bp_artists = [self._clean_artist(a.name) for a in track.artists]
                 for artist in artists:
@@ -58,7 +53,7 @@ class Beatport:
                     return track
 
             #No match - use fuzzywuzzy
-            fuzzy = fuzz.token_sort_ratio(track.title.replace('(Original Mix)', ''), title.replace('(Original Mix)', ''))
+            fuzzy = fuzz.token_sort_ratio(self._clean_attributes(track.title), self._clean_attributes(title))
             if fuzzy >= fuzzywuzzy_ratio:
                 #Fuzzy match all artists
                 bp_artists = ','.join([a.name for a in track.artists])
@@ -84,8 +79,16 @@ class Beatport:
             input = input.replace(c, '')
         return input.strip()
 
+    #Remove track attributes like Original mix, intro clean
+    def _clean_attributes(self, title: str) -> str:
+        title = re.sub(r'\(original( (mix|remix))*\)', '', title.lower())
+        title = title.replace('(intro)', '')
+        title = title.replace('(clean)', '')
+        return title.replace('  ', '').strip()
+
     def _clean_title(self, title: str) -> str:
         title = re.sub(r'\(*feat[^\(\\[]*', '', title.lower())
+        title = self._clean_attributes(title)
         #Remove mid word the
         title = title.replace('the ', '')
         title = self._remove_special(title)
