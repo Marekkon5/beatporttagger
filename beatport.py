@@ -129,7 +129,13 @@ class Track:
         self.publish_date = datetime.datetime.strptime(data['date']['published'], '%Y-%m-%d')
 
     def art(self, resolution: int):
-        return self._art.replace('{x}', str(resolution)).replace('{y}', str(resolution)).replace('{w}', str(resolution)).replace('{h}', str(resolution))
+        if '{x}' in self._art or '{w}' in self._art:
+            return self._art.replace('{x}', str(resolution)).replace('{y}', str(resolution)).replace('{w}', str(resolution)).replace('{h}', str(resolution))
+        if '/image_size/' not in self._art:
+            return self._art
+
+        #Parse non-dynamic dynamic image
+        return re.sub(r'\/image_size\/\d+x\d+\/', f'/image_size/{resolution}x{resolution}/', self._art)
 
     #Convert Beatport key to ID3
     def id3key(self):
