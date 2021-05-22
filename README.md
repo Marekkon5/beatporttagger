@@ -4,6 +4,9 @@
 
 Simple Python app to update your audio tags & cover with data from Beatport using scrapping (no paid API).
 
+# WARNING: Deprecated
+This app has been deprecated for OneTagger, because we wanted to unify all the taggers. [Github Repository](https://github.com/Marekkon5/onetagger), [Website](https://onetagger.github.io/).
+
 ![Screenshot](https://raw.githubusercontent.com/Marekkon5/beatporttagger/main/assets/screenshot.jpg)
 
 # Compatibility
